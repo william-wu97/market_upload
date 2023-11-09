@@ -12,6 +12,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /***
  * https://developer.huawei.com/consumer/cn/doc/development/AppGallery-connect-Guides/agcapi-upload_appfile
@@ -23,14 +25,36 @@ public class HuaWeiMarket extends BaseMarket {
     private String token;
     private HwUploadFileInfo hwUploadFileInfo;
 
+    // 创建一个Timer对象
+    private Timer timer = new Timer();
+    // 设置一个倒计时的时间，单位为秒
+    private int countdown = 2 * 60;
+    // 创建一个TimerTask对象，用于执行倒计时的任务
+    private TimerTask task = new TimerTask() {
+        @Override
+        public void run() {
+            // 每秒钟减少1
+            countdown--;
+            // 计算倒计时的分钟和秒数
+            int minute = countdown / 60;
+            int second = countdown % 60;
+            // 打印输出剩余时间
+            System.out.println("剩余时间：" + minute + "分" + second + "秒");
+            // 如果倒计时结束，取消定时器
+            if (countdown == 0) {
+                timer.cancel();
+            }
+        }
+    };
+
     public HuaWeiMarket(MarketConfig config, PushConfig pushConfig) {
-        super(config,pushConfig);
+        super(config, pushConfig);
     }
 
     @Override
     protected boolean pre() {
         token = getToken();
-        if(Utils.isEmpty(token)) {
+        if (Utils.isEmpty(token)) {
             return false;
         }
         return updateAppInfo();
@@ -44,7 +68,6 @@ public class HuaWeiMarket extends BaseMarket {
         }
         return hwUploadFileInfo.uploadUrl;
     }
-
 
 
     @Override
@@ -75,7 +98,6 @@ public class HuaWeiMarket extends BaseMarket {
 
     @Override
     protected void sync(JsonObject response) {
-
         if (response == null) {
             return;
         }
@@ -95,6 +117,15 @@ public class HuaWeiMarket extends BaseMarket {
 
             Map<String, Object> requestMap = new HashMap<>();
             requestMap.put("appid", config.appId);
+            System.out.println("软件包采用异步解析方式，请您在传包后等候2分钟再调用提交发布接口。");
+            try {
+                int millisecond = 2 * 60 * 1000;
+                Thread.sleep(millisecond);
+                // 指定定时器每隔1秒钟执行一次任务
+                timer.schedule(task, 0, 1000);
+            } catch (InterruptedException ex) {
+                Thread.currentThread().interrupt();
+            }
             Upload.post(DOMAIN + "/publish/v2/app-submit", requestMap, getHeader());
         } catch (IOException e) {
             e.printStackTrace();
@@ -128,7 +159,6 @@ public class HuaWeiMarket extends BaseMarket {
     }
 
     private String getToken() {
-
         Map<String, Object> requestMap = new HashMap<>();
         requestMap.put("client_id", config.accessKey);
         requestMap.put("client_secret", config.accessSecret);
@@ -152,8 +182,7 @@ public class HuaWeiMarket extends BaseMarket {
         try {
             JsonObject response = Upload.get(DOMAIN + "/publish/v2/upload-url", requestMap, getHeader());
             if (response != null) {
-                return new HwUploadFileInfo(response.get("authCode").getAsString()
-                        , response.get("uploadUrl").getAsString());
+                return new HwUploadFileInfo(response.get("authCode").getAsString(), response.get("uploadUrl").getAsString());
             }
         } catch (IOException e) {
             e.printStackTrace();

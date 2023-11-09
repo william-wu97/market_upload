@@ -15,10 +15,14 @@
       "accessKey" : "AppGallery Connect API 客户端中的客户端ID",
       "accessSecret" : "AppGallery Connect API 客户端中的密钥",
       "channel" : "渠道号"
+    },
+    "oppo" : {
+      "accessKey" : "Api传包中的access_key",
+      "accessSecret" : "Api传包中的access_secret",
+      "channel" : "渠道号"
     }
   },
   "pushInfo" : {
     "updateDesc" : "升级文案"
-
   }
 }
