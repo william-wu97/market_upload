@@ -104,7 +104,9 @@ public class OPPOMarket extends BaseMarket {
             //实时上架
             params.put("online_type", 1);
             params.put("test_desc", data.get("test_desc").getAsString());
+            params.put("electronic_cert_url", data.get("electronic_cert_url").getAsString());
             params.put("copyright_url", data.get("copyright_url").getAsString());
+            params.put("icp_url", data.get("icp_url").getAsString());
             params.put("business_username", data.get("business_username").getAsString());
             params.put("business_email", data.get("business_email").getAsString());
             params.put("business_mobile", data.get("business_mobile").getAsString());
