@@ -119,10 +119,10 @@ public class HuaWeiMarket extends BaseMarket {
             requestMap.put("appid", config.appId);
             System.out.println("软件包采用异步解析方式，请您在传包后等候2分钟再调用提交发布接口。");
             try {
-                int millisecond = 2 * 60 * 1000;
-                Thread.sleep(millisecond);
                 // 指定定时器每隔1秒钟执行一次任务
                 timer.schedule(task, 0, 1000);
+                int millisecond = 2 * 60 * 1000;
+                Thread.sleep(millisecond);
             } catch (InterruptedException ex) {
                 Thread.currentThread().interrupt();
             }

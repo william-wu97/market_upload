@@ -15,7 +15,7 @@ public class Utils {
     /***
      * 获取当前路径
      */
-    public static String getPath(){
+    public static String getPath() {
         return System.getProperty("user.dir");
         /*String path = obj.getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
         if(System.getProperty("os.name").contains("dows"))
@@ -30,12 +30,12 @@ public class Utils {
         return path.replace("target/classes/", "");*/
     }
 
-    public static String getFileMD5(File file){
+    public static String getFileMD5(File file) {
         FileInputStream fis = null;
         try {
             fis = new FileInputStream(file);
             return md5(fis);
-        }catch (NoSuchAlgorithmException | IOException e){
+        } catch (NoSuchAlgorithmException | IOException e) {
             e.printStackTrace();
         } finally {
             if (fis != null) {
@@ -51,9 +51,9 @@ public class Utils {
 
     public final static String md5(FileInputStream fis) throws NoSuchAlgorithmException, IOException {
         BigInteger MD5;
-        int len ;
+        int len;
         byte[] buffer = new byte[8192];
-        MessageDigest md ;
+        MessageDigest md;
         md = MessageDigest.getInstance("MD5");
         while ((len = fis.read(buffer)) != -1) {
             md.update(buffer, 0, len);
@@ -61,7 +61,16 @@ public class Utils {
 
         byte[] b = md.digest();
         MD5 = new BigInteger(1, b);
-        return MD5.toString(16);
+        String md5code = MD5.toString(16);
+        //如果加密后的md5密文不足32位，前面补0
+        while (true) {
+            if (md5code.length() < 32) {
+                md5code = "0" + md5code;
+            } else {
+                break;
+            }
+        }
+        return md5code;
     }
 
     public final static String md5(byte[] buffer) {
@@ -83,6 +92,7 @@ public class Utils {
             return null;
         }
     }
+
     public static String bytes2HexString(final byte[] bytes) {
         if (bytes == null) return null;
         int len = bytes.length;
@@ -107,8 +117,8 @@ public class Utils {
             return new String(b, StandardCharsets.UTF_8);
         } catch (IOException e) {
             e.printStackTrace();
-        }finally {
-            if(fis != null) {
+        } finally {
+            if (fis != null) {
                 try {
                     fis.close();
                 } catch (IOException e) {
