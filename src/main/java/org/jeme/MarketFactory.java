@@ -30,4 +30,13 @@ public class MarketFactory {
             iMarket.process();
         }
     }
+
+    /***
+     * 处理查看应用市场上架状态的逻辑
+     */
+    public void catMarket(){
+        for (IMarket iMarket : pushMarket) {
+            iMarket.catMarket();
+        }
+    }
 }

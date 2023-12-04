@@ -40,6 +40,15 @@ public class OPPOMarket extends BaseMarket {
     }
 
     @Override
+    protected boolean preQuery() {
+        token = getToken();
+        if (Utils.isEmpty(token)) {
+            return false;
+        }
+        return queryAppInfo();
+    }
+
+    @Override
     protected void sync(JsonObject response) {
         if (response == null) {
             return;
@@ -266,5 +275,21 @@ public class OPPOMarket extends BaseMarket {
             sb.append((strHex.length() == 1) ? "0" + strHex : strHex);
         }
         return sb.toString();
+    }
+
+    private boolean queryAppInfo() {
+        JsonObject response = getAppInfos();
+        if (response != null) {
+            int errno = response.get("errno").getAsInt();
+            if (errno == 0) {
+                JsonObject result = response.get("data").getAsJsonObject();
+                System.out.println("版本号：" + result.get("version_name").getAsString());
+                System.out.println("审核状态：" + result.get("audit_status_name").getAsString());
+                System.out.println("审核拒绝原因：" + result.get("refuse_reason").getAsString());
+                System.out.println("修改建议：" + result.get("refuse_advice").getAsString());
+                return true;
+            }
+        }
+        return false;
     }
 }

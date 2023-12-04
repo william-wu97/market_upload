@@ -32,6 +32,8 @@ public abstract class BaseMarket implements IMarket {
 
     protected abstract boolean pre();
 
+    protected abstract boolean preQuery();
+
     protected abstract void sync(JsonObject body);
 
     protected abstract String getUploadUrl();
@@ -203,6 +205,18 @@ public abstract class BaseMarket implements IMarket {
 
     @Override
     public void catMarket() {
+        System.out.printf("%n===================%s市场查询上架状态开始===================%n", platformName());
+        if (config == null || pushConfig == null) {
+            System.out.println("配置信息错误，查询失败");
+            System.out.printf("===================%s市场查询上架状态结束===================%n", platformName());
+            return;
+        }
+        //step 1 : 查询上架状态
+        if (!preQuery()) {
+            System.out.printf("===================%s市场查询上架状态结束===================%n", platformName());
+            return;
+        }
 
+        System.out.printf("===================%s市场查询上架状态结束===================%n", platformName());
     }
 }

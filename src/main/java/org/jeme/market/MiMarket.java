@@ -39,7 +39,7 @@ public class MiMarket extends BaseMarket {
     }
 
     public MiMarket(MarketConfig config, PushConfig pushConfig) {
-        super(config,pushConfig);
+        super(config, pushConfig);
     }
 
     @Override
@@ -54,6 +54,13 @@ public class MiMarket extends BaseMarket {
         }
         return false;
     }
+
+    @Override
+    protected boolean preQuery() {
+        System.out.println(platformName() + "暂时没有开放查询审核中的app或者在架的app应用信息、状态的接口");
+        return false;
+    }
+
     @Override
     public String getUploadUrl() {
         return PUSH;
@@ -122,6 +129,7 @@ public class MiMarket extends BaseMarket {
     protected void sync(JsonObject body) {
 
     }
+
     public String encryptByPublicKey(String str, PublicKey publicKey) throws Exception {
         byte[] data = str.getBytes();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();

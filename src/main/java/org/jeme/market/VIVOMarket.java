@@ -31,6 +31,11 @@ public class VIVOMarket extends BaseMarket {
     }
 
     @Override
+    protected boolean preQuery() {
+        return queryAppInfo();
+    }
+
+    @Override
     public String getUploadUrl() {
         return "https://developer-api.vivo.com.cn/router/rest";
     }
@@ -193,5 +198,38 @@ public class VIVOMarket extends BaseMarket {
             sb.append((strHex.length() == 1) ? "0" + strHex : strHex);
         }
         return sb.toString();
+    }
+
+    private boolean queryAppInfo() {
+        Map<String, Object> params = null;
+        ApkInfo apkInfo = readApkInfo();
+        if (apkInfo == null) {
+            System.out.println("读取App信息失败");
+            return false;
+        }
+        try {
+            params = getPublicParams();
+            params.put("method", "app.query.details");
+            params.put("packageName", apkInfo.packageName);
+            // 签名参数
+            params.put("sign", sign(params, config.accessSecret, SIGN_METHOD_HMAC));
+            JsonObject response = Upload.post(getUploadUrl(), params, null);
+            if (response != null) {
+                int code = response.get("code").getAsInt();
+                if (code == 0) {
+                    JsonObject result = response.get("data").getAsJsonObject();
+                    System.out.println("版本号：" + result.get("versionName").getAsString());
+                    String[] Status = {"草稿", "待审核", "审核通过", "审核不通过"};
+                    System.out.println("审核状态：" + Status[result.get("status").getAsInt() - 1]);
+                    if (result.get("status").getAsInt() == 4) {
+                        System.out.println("审核不通过原因：" + result.get("unPassReason").getAsString());
+                    }
+                    return true;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }

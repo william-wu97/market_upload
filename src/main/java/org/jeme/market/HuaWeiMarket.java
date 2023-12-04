@@ -61,6 +61,15 @@ public class HuaWeiMarket extends BaseMarket {
     }
 
     @Override
+    protected boolean preQuery() {
+        token = getToken();
+        if (Utils.isEmpty(token)) {
+            return false;
+        }
+        return queryAppInfo();
+    }
+
+    @Override
     public String getUploadUrl() {
         hwUploadFileInfo = getUploadUrl2();
         if (hwUploadFileInfo == null) {
@@ -218,4 +227,33 @@ public class HuaWeiMarket extends BaseMarket {
         return false;
     }
 
+    private boolean queryAppInfo() {
+        if (Utils.isEmpty(token)) {
+            return false;
+        }
+
+        Map<String, Object> requestMap = new HashMap<>();
+
+        try {
+            JsonObject response = Upload.get(DOMAIN + "/publish/v2/app-info?appId=" + config.appId, requestMap, getHeader());
+            if (response != null) {
+                JsonObject ret = response.get("ret").getAsJsonObject();
+                if (ret != null) {
+                    int code = ret.get("code").getAsInt();
+                    if (code == 0) {
+                        JsonObject appInfo = response.get("appInfo").getAsJsonObject();
+                        System.out.println("版本号：" + appInfo.get("versionNumber").getAsString());
+                        String[] ReleaseState = {"已上架", "上架审核不通过", "已下架（含强制下架）", "待上架，预约上架", "审核中", "升级中", "申请下架", "草稿", "升级审核不通过", "下架审核不通过", "应用被开发者下架", "撤销上架"};
+                        System.out.println("应用状态：" + ReleaseState[appInfo.get("releaseState").getAsInt()]);
+                        JsonObject auditInfo = response.get("auditInfo").getAsJsonObject();
+                        System.out.println("应用整体审核意见：" + auditInfo.get("auditOpinion").getAsString());
+                        return true;
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }
